@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import couchdb
 import sys
 import textblob
@@ -21,17 +22,22 @@ except:
     sys.exit()
 
 def clean_tweet(text):
-    return ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", text).split())
+    return ' '.join(re.sub("(@[^\s]+)|([^\s \t])|(\w+:\/\/\S+)", " ", text).split())
 
 view = "tweetsview_UIO/viewOnlyText"
-myfile = open("tweetslimpios2.txt",'w')
+myfile = open("tweetslimpios.csv",'w')
+
+def replaceTwoOrMore(s):
+    #look for 2 or more repetitions of character and replace with the character itself
+    pattern = re.compile(r"(.)\1{1,}", re.DOTALL)
+    return pattern.sub(r"\1\1", s)
 
 for data in db.view(view):
     json_data = {}
     json_data = db.get(data['id'])
     text_es = TextBlob(data['value'])
     print(text_es)
-    analisis = ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", str(text_es)).split())
+    analisis = ' '.join(re.sub("(@[A-Za-zñáéíóúÑÁÉÍÓÚ0-9]+)|([^0-9A-Za-zñáéíóúÑÁÉÍÓÚ \t])|(\w+:\/\/\S+)", " ", str(text_es)).split())
     myfile.write(analisis)
     myfile.write("\n")
 
